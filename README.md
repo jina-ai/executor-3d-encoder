@@ -9,7 +9,7 @@ An executor that loads 3D mesh models and embeds documents.
 
 ```python
 from jina import Flow
-	
+
 f = Flow().add(uses='jinahub+docker://3DMeshEncoder')
 ```
 
@@ -17,7 +17,7 @@ f = Flow().add(uses='jinahub+docker://3DMeshEncoder')
 
 ```python
 from jina import Flow
-	
+
 f = Flow().add(uses='jinahub://3DMeshEncoder')
 ```
 

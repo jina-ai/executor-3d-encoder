@@ -4,18 +4,29 @@ import torch.nn.functional as F
 
 from .modules import PointConvDensityNet
 
+
 class PointConv(torch.nn.Module):
-    def __init__(self, emb_dims=1024, input_shape="bnc", input_channel_dim=3, classifier=False, num_classes=40,
-                 pretrained=None):
+    def __init__(
+        self,
+        emb_dims=1024,
+        input_shape='bnc',
+        input_channel_dim=3,
+        classifier=False,
+        num_classes=40,
+        pretrained=None,
+    ):
         super(PointConv, self).__init__()
-        if input_shape not in ["bnc", "bcn"]:
-            raise ValueError("Allowed shapes are 'bcn' (batch * channels * num_in_points), 'bnc' ")
+        if input_shape not in ['bnc', 'bcn']:
+            raise ValueError(
+                "Allowed shapes are 'bcn' (batch * channels * num_in_points), 'bnc' "
+            )
         self.input_shape = input_shape
         self.emb_dims = emb_dims
         self.classifier = classifier
         self.input_channel_dim = input_channel_dim
         self.create_structure()
-        if self.classifier: self.create_classifier(num_classes)
+        if self.classifier:
+            self.create_classifier(num_classes)
 
     def create_structure(self):
         # Arguments to define PointConv network using PointConvDensityNet class.
@@ -25,12 +36,30 @@ class PointConv(torch.nn.Module):
         # mlp:				sizes of multi-layer perceptrons.
         # bandwidth:		used to compute gaussian density.
         # group_all:		group all points from input to a single point if set to True.
-        self.sa1 = PointConvDensityNet(npoint=512, nsample=32, in_channel=self.input_channel_dim,
-                                       mlp=[64, 64, 128], bandwidth=0.1, group_all=False)
-        self.sa2 = PointConvDensityNet(npoint=128, nsample=64, in_channel=128 + 3,
-                                       mlp=[128, 128, 256], bandwidth=0.2, group_all=False)
-        self.sa3 = PointConvDensityNet(npoint=1, nsample=None, in_channel=256 + 3,
-                                       mlp=[256, 512, self.emb_dims], bandwidth=0.4, group_all=True)
+        self.sa1 = PointConvDensityNet(
+            npoint=512,
+            nsample=32,
+            in_channel=self.input_channel_dim,
+            mlp=[64, 64, 128],
+            bandwidth=0.1,
+            group_all=False,
+        )
+        self.sa2 = PointConvDensityNet(
+            npoint=128,
+            nsample=64,
+            in_channel=128 + 3,
+            mlp=[128, 128, 256],
+            bandwidth=0.2,
+            group_all=False,
+        )
+        self.sa3 = PointConvDensityNet(
+            npoint=1,
+            nsample=None,
+            in_channel=256 + 3,
+            mlp=[256, 512, self.emb_dims],
+            bandwidth=0.4,
+            group_all=True,
+        )
 
     def create_classifier(self, num_classes):
         # These are simple fully-connected layers with batch-norm and dropouts.
@@ -45,7 +74,7 @@ class PointConv(torch.nn.Module):
         self.fc3 = nn.Linear(256, num_classes)
 
     def forward(self, input_data):
-        if self.input_shape == "bnc":
+        if self.input_shape == 'bnc':
             input_data = input_data.permute(0, 2, 1)
         batch_size = input_data.shape[0]
 

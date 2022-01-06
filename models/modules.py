@@ -36,7 +36,6 @@ class DensityNet(nn.Module):
 
 
 class WeightNet(nn.Module):
-
     def __init__(self, in_channel, out_channel, hidden_unit=[8, 8]):
         super(WeightNet, self).__init__()
 
@@ -104,12 +103,22 @@ class PointConvDensityNet(nn.Module):
         inverse_density = 1.0 / xyz_density
 
         if self.group_all:
-            new_xyz, new_points, grouped_xyz_norm, grouped_density = sample_and_group_all(xyz, points,
-                                                                                          inverse_density.view(B, N, 1))
+            (
+                new_xyz,
+                new_points,
+                grouped_xyz_norm,
+                grouped_density,
+            ) = sample_and_group_all(xyz, points, inverse_density.view(B, N, 1))
         else:
-            new_xyz, new_points, grouped_xyz_norm, _, grouped_density = sample_and_group(self.npoint, self.nsample, xyz,
-                                                                                         points,
-                                                                                         inverse_density.view(B, N, 1))
+            (
+                new_xyz,
+                new_points,
+                grouped_xyz_norm,
+                _,
+                grouped_density,
+            ) = sample_and_group(
+                self.npoint, self.nsample, xyz, points, inverse_density.view(B, N, 1)
+            )
         # new_xyz: sampled points position data, [B, npoint, C]
         # new_points: sampled points data, [B, npoint, nsample, C+D]
         new_points = new_points.permute(0, 3, 2, 1)  # [B, C+D, nsample,npoint]
@@ -124,9 +133,9 @@ class PointConvDensityNet(nn.Module):
 
         grouped_xyz = grouped_xyz_norm.permute(0, 3, 2, 1)
         weights = self.weightnet(grouped_xyz)
-        new_points = torch.matmul(input=new_points.permute(0, 3, 1, 2), other=weights.permute(0, 3, 2, 1)).view(B,
-                                                                                                                self.npoint,
-                                                                                                                -1)
+        new_points = torch.matmul(
+            input=new_points.permute(0, 3, 1, 2), other=weights.permute(0, 3, 2, 1)
+        ).view(B, self.npoint, -1)
         new_points = self.linear(new_points)
         new_points = self.bn_linear(new_points.permute(0, 2, 1))
         new_points = F.relu(new_points)
