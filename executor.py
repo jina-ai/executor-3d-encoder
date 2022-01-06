@@ -4,7 +4,7 @@ import numpy as np
 import torch
 from jina import Document, DocumentArray, Executor, requests
 
-from models import PointConv, PointNet
+from .models import PointConv, PointNet
 
 AVAILABLE_MODELS = {
     'PointNet-Shapenet-d1024': {
@@ -31,7 +31,7 @@ AVAILABLE_MODELS = {
 
 
 def normalize(doc: 'Document'):
-    points = np.transpose(doc.blob)
+    points = doc.blob
     points = points - np.expand_dims(np.mean(points, axis=0), 0)  # center
     dist = np.max(np.sqrt(np.sum(points ** 2, axis=1)), 0)
     points = points / dist  # scale
