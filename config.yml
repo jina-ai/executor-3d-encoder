@@ -1,0 +1,4 @@
+jtype: 3DMeshEncoder
+metas:
+  py_modules:
+    - executor.py
