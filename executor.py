@@ -2,7 +2,7 @@ from typing import Optional
 
 import numpy as np
 import torch
-from jina import DocumentArray, Executor, requests
+from jina import Document, DocumentArray, Executor, requests
 
 from models import PointConv, PointNet
 
@@ -28,6 +28,15 @@ AVAILABLE_MODELS = {
         'model_path': '',
     },
 }
+
+
+def normalize(doc: 'Document'):
+    points = np.transpose(doc.blob)
+    points = points - np.expand_dims(np.mean(points, axis=0), 0)  # center
+    dist = np.max(np.sqrt(np.sum(points ** 2, axis=1)), 0)
+    points = points / dist  # scale
+    doc.blob = points.astype(np.float32)
+    return doc
 
 
 class MeshDataEncoder(Executor):
@@ -78,7 +87,7 @@ class MeshDataEncoder(Executor):
     @requests
     def encode(self, docs: DocumentArray, **_):
         """Encode docs."""
-        docs.blobs = docs.blobs.astype(np.float32)
+        docs.apply(normalize)
         docs.embed(
             self._encoder,
             device=self._device,
