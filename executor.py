@@ -47,7 +47,7 @@ class MeshDataEncoder(Executor):
     def __init__(
         self,
         pretrained_model: str = 'PointConv-Shapenet-d1024',
-        model_name: Optional[str] = None,
+        default_model_name: str = 'pointconv',
         model_path: Optional[str] = None,
         emb_dims: Optional[int] = None,
         input_shape: str = 'bnc',
@@ -57,7 +57,7 @@ class MeshDataEncoder(Executor):
     ) -> None:
         """
         :param pretrained_model: The pretrained model path.
-        :param model_name: The name of the model. Models listed on:
+        :param default_model_name: The name of the default model. Models listed on:
             https://github.com/jina-ai/executor-3d-encoder
         :param model_path: The path of the trained models checkpoint.
         :param emb_dims: The dimension of embeddings.
@@ -67,10 +67,15 @@ class MeshDataEncoder(Executor):
         """
         super().__init__(**kwargs)
 
+        config = {}
         if pretrained_model in AVAILABLE_MODELS:
             config = AVAILABLE_MODELS[pretrained_model]
             model_name = config.pop('model_name')
             model_path = config.pop('model_path')
+
+        else:
+            model_name = default_model_name
+            config['emb_dims'] = emb_dims
 
         self._encoder = {'pointnet': PointNet, 'pointconv': PointConv}[model_name](
             **config
