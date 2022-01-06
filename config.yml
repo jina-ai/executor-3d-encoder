@@ -1,4 +1,4 @@
-jtype: 3DMeshEncoder
+jtype: MeshDataEncoder
 metas:
   py_modules:
-    - executor.py
+    - __init__.py
