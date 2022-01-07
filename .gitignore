@@ -132,3 +132,4 @@ workspace
 Dockerfile
 __jina__.Dockerfile
 nohup.out
+checkpoints
