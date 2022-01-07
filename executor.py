@@ -32,7 +32,7 @@ AVAILABLE_MODELS = {
         'model_name': 'pointconv',
         'hidden_dim': 1024,
         'embed_dim': 512,
-        'model_path': '',
+        'model_path': 'https://jina-pretrained-models.s3.us-west-1.amazonaws.com/mesh_models/pointconv-shapenet-d512.pth',
     },
 }
 
@@ -53,7 +53,7 @@ class MeshDataEncoder(Executor):
 
     def __init__(
         self,
-        pretrained_model: str = 'PointConv-Base-d1024',
+        pretrained_model: str = 'PointConv-Shapenet-d512',
         default_model_name: str = 'pointconv',
         model_path: Optional[str] = None,
         hidden_dim: int = 1024,
@@ -106,8 +106,9 @@ class MeshDataEncoder(Executor):
                 file_name = os.path.basename(model_path)
                 model_path = cache_dir / file_name
 
-                print(f'=> download {file_url} to {model_path}')
-                urllib.request.urlretrieve(file_url, model_path)
+                if not model_path.exists():
+                    print(f'=> download {file_url} to {model_path}')
+                    urllib.request.urlretrieve(file_url, model_path)
 
             checkpoint = torch.load(model_path, map_location='cpu')
             self._model.load_state_dict(checkpoint)
