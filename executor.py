@@ -1,40 +1,37 @@
+__copyright__ = 'Copyright (c) 2022 Jina AI Limited. All rights reserved.'
+__license__ = 'Apache-2.0'
+
 from typing import Optional
 
 import numpy as np
 import torch
 from jina import Document, DocumentArray, Executor, requests
 
-from .models import PointConv, PointNet
+from .models import MeshDataModel
 
 AVAILABLE_MODELS = {
-    'PointNet-Base-d1024': {
-        'model_name': 'pointnet',
-        'emb_dims': 1024,
-        'model_path': '',
-    },
-    'PointConv-Base-d1024': {
-        'model_name': 'pointconv',
-        'emb_dims': 1024,
-        'model_path': 'https://jina-pretrained-models.s3.us-west-1.amazonaws.com/mesh_models/pointconv_class_encoder.pth',
-    },
     'PointNet-Shapenet-d1024': {
         'model_name': 'pointnet',
-        'emb_dims': 1024,
+        'hidden_dim': 1024,
+        'embed_dim': 1024,
         'model_path': '',
     },
     'PointConv-Shapenet-d1024': {
         'model_name': 'pointconv',
-        'emb_dims': 1024,
+        'hidden_dim': 1024,
+        'embed_dim': 1024,
         'model_path': '',
     },
     'PointNet-Shapenet-d512': {
         'model_name': 'pointnet',
-        'emb_dims': 512,
+        'hidden_dim': 1024,
+        'embed_dim': 512,
         'model_path': '',
     },
     'PointConv-Shapenet-d512': {
         'model_name': 'pointconv',
-        'emb_dims': 512,
+        'hidden_dim': 1024,
+        'embed_dim': 512,
         'model_path': '',
     },
 }
@@ -59,7 +56,8 @@ class MeshDataEncoder(Executor):
         pretrained_model: str = 'PointConv-Base-d1024',
         default_model_name: str = 'pointconv',
         model_path: Optional[str] = None,
-        emb_dims: Optional[int] = None,
+        hidden_dim: int = 1024,
+        embed_dim: int = 1024,
         input_shape: str = 'bnc',
         device: str = 'cpu',
         batch_size: int = 64,
@@ -77,20 +75,23 @@ class MeshDataEncoder(Executor):
         """
         super().__init__(**kwargs)
 
-        config = {}
+        model_path = None
         if pretrained_model in AVAILABLE_MODELS:
             config = AVAILABLE_MODELS[pretrained_model]
             model_name = config.pop('model_name')
             model_path = config.pop('model_path')
-
+            embed_dim = config.pop('embed_dim')
+            hidden_dim = config.pop('hidden_dim')
         else:
             model_name = default_model_name
-            config['emb_dims'] = emb_dims
 
-        self._encoder = {'pointnet': PointNet, 'pointconv': PointConv}[model_name](
-            **config
+        self._model = MeshDataModel(
+            model_name=model_name,
+            hidden_dim=hidden_dim,
+            embed_dim=embed_dim,
+            pretrained=False if model_path else True,
         )
-        self._encoder.eval()
+        self._model.eval()
 
         if model_path:
             if model_path.startswith('http'):
@@ -109,7 +110,7 @@ class MeshDataEncoder(Executor):
                 urllib.request.urlretrieve(file_url, model_path)
 
             checkpoint = torch.load(model_path, map_location='cpu')
-            self._encoder.load_state_dict(checkpoint)
+            self._model.load_state_dict(checkpoint)
 
         self._device = device
         self._batch_size = batch_size
@@ -119,7 +120,7 @@ class MeshDataEncoder(Executor):
         """Encode docs."""
         docs.apply(normalize)
         docs.embed(
-            self._encoder,
+            self._model,
             device=self._device,
             batch_size=self._batch_size,
             to_numpy=True,
