@@ -1,6 +1,7 @@
 __copyright__ = 'Copyright (c) 2022 Jina AI Limited. All rights reserved.'
 __license__ = 'Apache-2.0'
 
+import pathlib
 from functools import partial
 
 import click
@@ -43,26 +44,31 @@ def preprocess(doc: 'Document', num_points: int = 1024, data_aug: bool = True):
 @click.option('--train_dataset', help='The training dataset file path')
 @click.option('--eval_dataset', help='The evaluation dataset file path')
 @click.option('--embed_dim', default=512, help='The embedding dimension')
-@click.option('--checkpoint', help='The pretrained checkpoint')
-@click.option('--dump_path', help='The target dump path of checkpoint')
+@click.option('--restore_from', help='The restore checkpoitn path of pretrained model')
+@click.option(
+    '--checkpoint_dir',
+    default='checkpoints',
+    type=click.Path(file_okay=False, path_type=pathlib.Path),
+    help='The directory of checkpoints',
+)
 @click.option('--model_name', default='pointnet', help='The model name')
 @click.option('--batch_size', default=128, help='The pretrained clip model path')
 @click.option('--epochs', default=50, help='The pretrained clip model path')
-@click.option('--num_gpu', default=0, help='The number of GPUs')
+@click.option('--use-gpu/--no-use-gpu', default=False, help='If True to use gpu')
 def main(
     train_dataset,
     eval_dataset,
     model_name,
     embed_dim,
-    checkpoint,
     batch_size,
     epochs,
-    num_gpu,
-    dump_path,
+    use_gpu,
+    restore_from,
+    checkpoint_dir,
 ):
     model = MeshDataModel(model_name=model_name, embed_dim=embed_dim)
-    if checkpoint:
-        print(f'==> restore from: {checkpoint}')
+    if restore_from:
+        print(f'==> restore from: {restore_from}')
         ckpt = torch.load(checkpoint, map_location='cpu')
         model.load_state_dict(ckpt)
 
@@ -78,6 +84,11 @@ def main(
 
         return optimizer, scheduler
 
+    from finetuner.tuner.callback import TrainingCheckpoint
+
+    checkpoint_dir.mkdir(parents=True, exist_ok=True)
+    ckpt_callback = TrainingCheckpoint(str(checkpoint_dir))
+
     tuned_model = finetuner.fit(
         model,
         train_da,
@@ -91,12 +102,13 @@ def main(
         configure_optimizer=configure_optimizer,
         num_items_per_class=8,
         learning_rate=5e-4,
-        device='cuda' if num_gpu > 0 else 'cpu',
+        device='cuda' if use_gpu else 'cpu',
+        callbacks=[ckpt_callback],
     )
 
     torch.save(
         tuned_model.state_dict(),
-        dump_path if dump_path else f'finetuned_{point_model}-d{embed_dim}.pth',
+        str(checkpoint_dir / f'finetuned-{model_name}-d{embed_dim}.pth'),
     )
 
 
