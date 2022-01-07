@@ -23,7 +23,7 @@ def random_sample(pc, num):
 
 def preprocess(doc: 'Document', num_points: int = 1024, data_aug: bool = True):
     points = random_sample(doc.blob, num_points)
-    points = np.transpose(points)
+    # points = np.transpose(points)
 
     points = points - np.expand_dims(np.mean(points, axis=0), 0)  # center
     dist = np.max(np.sqrt(np.sum(points ** 2, axis=1)), 0)
@@ -42,11 +42,11 @@ def preprocess(doc: 'Document', num_points: int = 1024, data_aug: bool = True):
 @click.command()
 @click.option('--train_dataset', help='The training dataset file path')
 @click.option('--eval_dataset', help='The evaluation dataset file path')
-@click.option('--embed_dim', default=1024, help='The embedding dimension')
+@click.option('--embed_dim', default=512, help='The embedding dimension')
 @click.option('--checkpoint', help='The pretrained checkpoint')
 @click.option('--dump_path', help='The target dump path of checkpoint')
 @click.option('--model_name', default='pointnet', help='The model name')
-@click.option('--batch_size', default=64, help='The pretrained clip model path')
+@click.option('--batch_size', default=128, help='The pretrained clip model path')
 @click.option('--epochs', default=50, help='The pretrained clip model path')
 @click.option('--num_gpu', default=0, help='The number of GPUs')
 def main(
@@ -82,7 +82,7 @@ def main(
         model,
         train_da,
         eval_data=eval_da,
-        preprocess_fn=partial(preprocess, num_points=1024, data_aut=True),
+        preprocess_fn=partial(preprocess, num_points=1024, data_aug=True),
         epochs=epochs,
         batch_size=batch_size,
         loss=TripletLoss(
@@ -96,7 +96,7 @@ def main(
 
     torch.save(
         tuned_model.state_dict(),
-        dump_path if dump_path else f'finetuned_{point_model}.pth',
+        dump_path if dump_path else f'finetuned_{point_model}-d{embed_dim}.pth',
     )
 
 
