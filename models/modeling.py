@@ -63,8 +63,9 @@ class MeshDataModel(nn.Module):
                 file_name = os.path.basename(model_path)
                 model_path = cache_dir / file_name
 
-                print(f'=> download {file_url} to {model_path}')
-                urllib.request.urlretrieve(file_url, model_path)
+                if not model_path.exists():
+                    print(f'=> download {file_url} to {model_path}')
+                    urllib.request.urlretrieve(file_url, model_path)
 
             print(f'==> restore {model_name} from: {model_path}')
             checkpoint = torch.load(model_path, map_location='cpu')

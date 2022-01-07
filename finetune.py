@@ -11,7 +11,7 @@ from finetuner.tuner.pytorch.losses import TripletLoss
 from finetuner.tuner.pytorch.miner import TripletEasyHardMiner
 from jina import Document, DocumentArray
 
-from models.nn import PointNetModel
+from models import MeshDataModel
 
 
 def random_sample(pc, num):
@@ -42,8 +42,9 @@ def preprocess(doc: 'Document', num_points: int = 1024, data_aug: bool = True):
 @click.command()
 @click.option('--train_dataset', help='The training dataset file path')
 @click.option('--eval_dataset', help='The evaluation dataset file path')
-@click.option('--dim', default=1024, help='The embedding dimension')
+@click.option('--embed_dim', default=1024, help='The embedding dimension')
 @click.option('--checkpoint', help='The pretrained checkpoint')
+@click.option('--dump_path', help='The target dump path of checkpoint')
 @click.option('--model_name', default='pointnet', help='The model name')
 @click.option('--batch_size', default=64, help='The pretrained clip model path')
 @click.option('--epochs', default=50, help='The pretrained clip model path')
@@ -52,20 +53,21 @@ def main(
     train_dataset,
     eval_dataset,
     model_name,
-    dim,
+    embed_dim,
     checkpoint,
     batch_size,
     epochs,
     num_gpu,
+    dump_path,
 ):
-    model = PointNetModel(
-        name=model_name, output_dim=dim, pretrained_checkpoint=checkpoint
-    )
+    model = MeshDataModel(model_name=model_name, embed_dim=embed_dim)
+    if checkpoint:
+        print(f'==> restore from: {checkpoint}')
+        ckpt = torch.load(checkpoint, map_location='cpu')
+        model.load_state_dict(ckpt)
 
-    train_da = DocumentArray.load_binary(str(dataset_path / 'train.bin'))
-    eval_da = DocumentArray.load_binary(str(dataset_path / 'test.bin'))
-
-    print(f'train: {len(train_da)}, eval: {len(eval_da)}')
+    train_da = DocumentArray.load_binary(train_dataset)
+    eval_da = DocumentArray.load_binary(eval_dataset) if eval_dataset else None
 
     def configure_optimizer(model):
         from torch.optim import Adam
@@ -92,7 +94,10 @@ def main(
         device='cuda' if num_gpu > 0 else 'cpu',
     )
 
-    torch.save(tuned_model.encoder.state_dict(), f'finetune_{point_model}.pth')
+    torch.save(
+        tuned_model.state_dict(),
+        dump_path if dump_path else f'finetuned_{point_model}.pth',
+    )
 
 
 if __name__ == '__main__':
