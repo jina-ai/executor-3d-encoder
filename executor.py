@@ -7,6 +7,16 @@ from jina import Document, DocumentArray, Executor, requests
 from .models import PointConv, PointNet
 
 AVAILABLE_MODELS = {
+    'PointNet-Base-d1024': {
+        'model_name': 'pointnet',
+        'emb_dims': 1024,
+        'model_path': '',
+    },
+    'PointConv-Base-d1024': {
+        'model_name': 'pointconv',
+        'emb_dims': 1024,
+        'model_path': 'https://jina-pretrained-models.s3.us-west-1.amazonaws.com/mesh_models/pointconv_class_encoder.pth',
+    },
     'PointNet-Shapenet-d1024': {
         'model_name': 'pointnet',
         'emb_dims': 1024,
@@ -46,7 +56,7 @@ class MeshDataEncoder(Executor):
 
     def __init__(
         self,
-        pretrained_model: str = 'PointConv-Shapenet-d1024',
+        pretrained_model: str = 'PointConv-Base-d1024',
         default_model_name: str = 'pointconv',
         model_path: Optional[str] = None,
         emb_dims: Optional[int] = None,
@@ -83,6 +93,21 @@ class MeshDataEncoder(Executor):
         self._encoder.eval()
 
         if model_path:
+            if model_path.startswith('http'):
+                import os
+                import urllib.request
+                from pathlib import Path
+
+                cache_dir = Path.home() / '.cache' / 'jina-models'
+                cache_dir.mkdir(parents=True, exist_ok=True)
+
+                file_url = model_path
+                file_name = os.path.basename(model_path)
+                model_path = cache_dir / file_name
+
+                print(f'=> download {file_url} to {model_path}')
+                urllib.request.urlretrieve(file_url, model_path)
+
             checkpoint = torch.load(model_path, map_location='cpu')
             self._encoder.load_state_dict(checkpoint)
 

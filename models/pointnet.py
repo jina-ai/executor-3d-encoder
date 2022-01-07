@@ -20,7 +20,7 @@ class PointNet(nn.Module):
         if self.global_feat:
             self.pooling = Pooling('max')
 
-        self._layers = self.create_model()
+        self.layers = self.create_model()
 
     def create_model(self):
         self.conv1 = torch.nn.Conv1d(3, 64, 1)
