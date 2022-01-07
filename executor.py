@@ -1,3 +1,6 @@
+__copyright__ = 'Copyright (c) 2022 Jina AI Limited. All rights reserved.'
+__license__ = 'Apache-2.0'
+
 from typing import Optional
 
 import numpy as np
