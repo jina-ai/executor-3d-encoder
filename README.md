@@ -41,11 +41,17 @@ TBD...
 ```bash
 $ python finetune.py --help
 
-$ python finetune.py --model_name pointconv --train_dataset /path/to/train.bin --eval_dataset /path/to/eval.bin
+$ python finetune.py --model_name pointconv \
+    --train_dataset /path/to/train.bin \
+    --eval_dataset /path/to/eval.bin \
+    --batch_size 128 \
+    --epochs 50
 ```
 
 ### finetuning model with unlabeled dataset
 
 ```bash
-$ python finetune.py --model_name pointconv --train_dataset /path/to/unlabeled_data.bin --interactive
+$ python finetune.py --model_name pointconv \
+    --train_dataset /path/to/unlabeled_data.bin \
+    --interactive
 ```
