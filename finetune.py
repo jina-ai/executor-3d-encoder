@@ -8,6 +8,7 @@ import click
 import finetuner
 import numpy as np
 import torch
+from finetuner.tuner.callback import BestModelCheckpoint
 from finetuner.tuner.pytorch.losses import TripletLoss
 from finetuner.tuner.pytorch.miner import TripletEasyHardMiner
 from jina import Document, DocumentArray
@@ -84,10 +85,8 @@ def main(
 
         return optimizer, scheduler
 
-    from finetuner.tuner.callback import TrainingCheckpoint
-
     checkpoint_dir.mkdir(parents=True, exist_ok=True)
-    ckpt_callback = TrainingCheckpoint(str(checkpoint_dir))
+    ckpt_callback = BestModelCheckpoint(str(checkpoint_dir))
 
     tuned_model = finetuner.fit(
         model,
