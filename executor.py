@@ -20,7 +20,7 @@ AVAILABLE_MODELS = {
         'model_name': 'pointconv',
         'hidden_dim': 1024,
         'embed_dim': 1024,
-        'model_path': '',
+        'model_path': 'https://jina-pretrained-models.s3.us-west-1.amazonaws.com/mesh_models/pointconv-shapenet-d1024.pth',
     },
     'PointNet-Shapenet-d512': {
         'model_name': 'pointnet',
