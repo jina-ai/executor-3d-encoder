@@ -57,7 +57,7 @@ def preprocess(doc: 'Document', num_points: int = 1024, data_aug: bool = True):
 @click.option('--epochs', default=50, help='The pretrained clip model path')
 @click.option('--use-gpu/--no-use-gpu', default=False, help='If True to use gpu')
 @click.option(
-    '--interactive', default=False, help="set to True if you have unlabeled data"
+    '--interactive', default=False, help='set to True if you have unlabeled data'
 )
 def main(
     train_dataset,
