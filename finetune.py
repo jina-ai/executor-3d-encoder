@@ -56,6 +56,9 @@ def preprocess(doc: 'Document', num_points: int = 1024, data_aug: bool = True):
 @click.option('--batch_size', default=128, help='The pretrained clip model path')
 @click.option('--epochs', default=50, help='The pretrained clip model path')
 @click.option('--use-gpu/--no-use-gpu', default=False, help='If True to use gpu')
+@click.option(
+    '--interactive', default=False, help='set to True if you have unlabeled data'
+)
 def main(
     train_dataset,
     eval_dataset,
@@ -66,11 +69,12 @@ def main(
     use_gpu,
     restore_from,
     checkpoint_dir,
+    interactive,
 ):
     model = MeshDataModel(model_name=model_name, embed_dim=embed_dim)
     if restore_from:
         print(f'==> restore from: {restore_from}')
-        ckpt = torch.load(checkpoint, map_location='cpu')
+        ckpt = torch.load(checkpoint_dir, map_location='cpu')
         model.load_state_dict(ckpt)
 
     train_da = DocumentArray.load_binary(train_dataset)
@@ -103,6 +107,7 @@ def main(
         learning_rate=5e-4,
         device='cuda' if use_gpu else 'cpu',
         callbacks=[ckpt_callback],
+        interactive=interactive,
     )
 
     torch.save(
