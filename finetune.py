@@ -11,7 +11,7 @@ import torch
 from finetuner.tuner.callback import BestModelCheckpoint
 from finetuner.tuner.pytorch.losses import TripletLoss
 from finetuner.tuner.pytorch.miner import TripletEasyHardMiner
-from jina import Document, DocumentArray
+from docarray import Document, DocumentArray
 
 from models import MeshDataModel
 
@@ -19,12 +19,13 @@ from models import MeshDataModel
 def random_sample(pc, num):
     permutation = np.arange(len(pc))
     np.random.shuffle(permutation)
+    pc = np.array(pc).astype('float32')
     pc = pc[permutation[:num]]
     return pc
 
 
 def preprocess(doc: 'Document', num_points: int = 1024, data_aug: bool = True):
-    points = random_sample(doc.blob, num_points)
+    points = random_sample(doc.tensor, num_points)
     # points = np.transpose(points)
 
     points = points - np.expand_dims(np.mean(points, axis=0), 0)  # center
@@ -38,7 +39,8 @@ def preprocess(doc: 'Document', num_points: int = 1024, data_aug: bool = True):
         )
         points[:, [0, 2]] = points[:, [0, 2]].dot(rotation_matrix)  # random rotation
         points += np.random.normal(0, 0.02, size=points.shape)  # random jitter
-    return points
+    doc.tensor = points
+    return doc
 
 
 @click.command()
