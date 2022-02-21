@@ -7,7 +7,7 @@ import numpy as np
 import torch
 from jina import Document, DocumentArray, Executor, requests
 
-from .models import MeshDataModel
+from executor.models import MeshDataModel
 
 AVAILABLE_MODELS = {
     'PointNet-Shapenet-d1024': {
