@@ -1,6 +1,6 @@
 # 3D Mesh Encoder
 
-An Executor that receives Documents containing point sets data in its blob attribute, with shape `(N, 3)` and encodes it to embeddings of shape `(D,)`.
+An Executor that receives Documents containing point sets data in its `tensor` attribute, with shape `(N, 3)` and encodes it to embeddings of shape `(D,)`.
 Now, the following pretrained models are ready to be used to create embeddings:
 
 - **PointConv-Shapenet-d512**: A **PointConv** model resulted in **512** dimension of embeddings, which is finetuned based on ShapeNet dataset.

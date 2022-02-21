@@ -24,7 +24,7 @@ def random_sample(pc, num):
 
 
 def preprocess(doc: 'Document', num_points: int = 1024, data_aug: bool = True):
-    points = random_sample(doc.blob, num_points)
+    points = random_sample(doc.tensor, num_points)
     # points = np.transpose(points)
 
     points = points - np.expand_dims(np.mean(points, axis=0), 0)  # center
