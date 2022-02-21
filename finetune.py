@@ -13,7 +13,7 @@ from finetuner.tuner.pytorch.losses import TripletLoss
 from finetuner.tuner.pytorch.miner import TripletEasyHardMiner
 from docarray import Document, DocumentArray
 
-from models import MeshDataModel
+from executor.models import MeshDataModel
 
 
 def random_sample(pc, num):
