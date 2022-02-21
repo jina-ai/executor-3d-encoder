@@ -38,11 +38,11 @@ AVAILABLE_MODELS = {
 
 
 def normalize(doc: 'Document'):
-    points = doc.blob
+    points = doc.tensor
     points = points - np.expand_dims(np.mean(points, axis=0), 0)  # center
     dist = np.max(np.sqrt(np.sum(points ** 2, axis=1)), 0)
     points = points / dist  # scale
-    doc.blob = points.astype(np.float32)
+    doc.tensor = points.astype(np.float32)
     return doc
 
 
