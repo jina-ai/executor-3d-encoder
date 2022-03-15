@@ -2,4 +2,4 @@ manifest_version: 1
 name: MeshDataEncoder
 description: An executor that loads 3D mesh models and embeds documents.
 url: https://github.com/jina-ai/executor-3d-encoder
-keywords: [encoder, 3D-Mesh, pytorch]
+keywords: [encoder, 3D-Mesh, pytorch, 3.0-exclusive]
