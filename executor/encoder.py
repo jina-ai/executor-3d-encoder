@@ -123,11 +123,16 @@ class MeshDataEncoder(Executor):
     @requests
     def encode(self, docs: 'DocumentArray', **_):
         """Encode docs."""
-        if self._filters:
-            docs = docs.find(self._filters)
+        if docs is None:
+            return
 
-        docs.apply(normalize)
-        docs.embed(
+        if self._filters:
+            filtered_docs = docs.find(self._filters)
+        else:
+            filtered_docs = docs
+
+        filtered_docs.apply(normalize)
+        filtered_docs.embed(
             self._model,
             device=self._device,
             batch_size=self._batch_size,
