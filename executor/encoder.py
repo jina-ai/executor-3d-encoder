@@ -1,7 +1,7 @@
 __copyright__ = 'Copyright (c) 2022 Jina AI Limited. All rights reserved.'
 __license__ = 'Apache-2.0'
 
-from typing import Optional
+from typing import Dict, Optional
 
 import numpy as np
 import torch
@@ -61,6 +61,7 @@ class MeshDataEncoder(Executor):
         input_shape: str = 'bnc',
         device: str = 'cpu',
         batch_size: int = 64,
+        filters: Optional[dict] = None,
         **kwargs,
     ) -> None:
         """
@@ -72,6 +73,8 @@ class MeshDataEncoder(Executor):
         :param input_shape: The shape of Input Point Cloud (b: batch, n: no of points, c: channels)
         :param device: The device to use.
         :param batch_size: The batch size to use.
+        :param filters: The filter condition that the documents need to fulfill before reaching the Executor.
+            The condition can be defined in the form of a `DocArray query condition <https://docarray.jina.ai/fundamentals/documentarray/find/#query-by-conditions>`
         """
         super().__init__(**kwargs)
 
@@ -115,12 +118,21 @@ class MeshDataEncoder(Executor):
 
         self._device = device
         self._batch_size = batch_size
+        self._filters = filters
 
     @requests
-    def encode(self, docs: DocumentArray, **_):
+    def encode(self, docs: 'DocumentArray', **_):
         """Encode docs."""
-        docs.apply(normalize)
-        docs.embed(
+        if docs is None:
+            return
+
+        if self._filters:
+            filtered_docs = docs.find(self._filters)
+        else:
+            filtered_docs = docs
+
+        filtered_docs.apply(normalize)
+        filtered_docs.embed(
             self._model,
             device=self._device,
             batch_size=self._batch_size,
