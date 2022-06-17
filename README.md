@@ -15,7 +15,7 @@ Now, the following pretrained models are ready to be used to create embeddings:
 ```python
 from jina import Flow
 
-f = Flow().add(uses='jinahub+docker://3DMeshEncoder', \
+f = Flow().add(uses='jinahub+docker://MeshDataEncoder', \
                uses_with={'pretrained_model': 'PointConv-Shapenet-d512'})
 ```
 
@@ -24,7 +24,7 @@ f = Flow().add(uses='jinahub+docker://3DMeshEncoder', \
 ```python
 from jina import Flow
 
-f = Flow().add(uses='jinahub://3DMeshEncoder', \
+f = Flow().add(uses='jinahub://MeshDataEncoder', \
                uses_with={'pretrained_model': 'PointConv-Shapenet-d512'})
 ```
 
