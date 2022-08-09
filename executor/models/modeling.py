@@ -1,10 +1,10 @@
 import torch
 from torch import nn
 
-from .modules import MLP
 from .pointconv import PointConv
 from .pointnet import PointNet
 from .pointnet2 import PointNet2
+from .utils.pointconv_utils import MLP
 
 PRETRAINED_MODELS = {
     'pointnet': {
@@ -57,6 +57,14 @@ class MeshDataModel(nn.Module):
                 input_shape=input_shape,
                 classifier=False,
                 density_adaptive_type='ssg',
+            )
+        elif model_name == 'pointnet2msg':
+            self._point_encoder = PointNet2(
+                emb_dims=hidden_dim,
+                normal_channel=False,
+                input_shape=input_shape,
+                classifier=False,
+                density_adaptive_type='msg',
             )
 
         if model_path:
