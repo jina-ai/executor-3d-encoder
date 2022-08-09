@@ -454,7 +454,7 @@ class PointNetSetAbstraction(nn.Module):
 
 class PointNetSetAbstractionMsg(nn.Module):
     def __init__(self, npoint, radius_list, nsample_list, in_channel, mlp_list):
-        super(PointNetSetAbstractionMsg).__init__()
+        super(PointNetSetAbstractionMsg, self).__init__()
         self.npoint = npoint
         self.radius_list = radius_list
         self.nsample_list = nsample_list
