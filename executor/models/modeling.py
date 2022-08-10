@@ -1,10 +1,10 @@
 import torch
 from torch import nn
 
-from .pointconv import PointConv
+from .pointconv import MLP, PointConv
 from .pointnet import PointNet
 from .pointnet2 import PointNet2
-from .utils.pointconv_utils import MLP
+from .repsurf import RepSurf
 
 PRETRAINED_MODELS = {
     'pointnet': {
@@ -65,6 +65,13 @@ class MeshDataModel(nn.Module):
                 input_shape=input_shape,
                 classifier=False,
                 density_adaptive_type='msg',
+            )
+        elif model_name == 'repsurf':
+            self._point_encoder = RepSurf(
+                num_points=1024,
+                emb_dims=hidden_dim,
+                input_shape=input_shape,
+                classifier=False,
             )
 
         if model_path:

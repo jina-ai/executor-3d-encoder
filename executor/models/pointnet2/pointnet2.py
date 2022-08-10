@@ -1,7 +1,7 @@
 import torch.nn as nn
 import torch.nn.functional as F
 
-from .utils.pointconv_utils import PointNetSetAbstraction, PointNetSetAbstractionMsg
+from ..pointconv import PointNetSetAbstraction, PointNetSetAbstractionMsg
 
 
 class PointNet2(nn.Module):
@@ -80,11 +80,11 @@ class PointNet2(nn.Module):
                 radius=None,
                 nsample=None,
                 in_channel=640 + 3,
-                mlp=[256, 512, 1024],
+                mlp=[256, 512, self.emb_dims],
                 group_all=True,
             )
 
-        self.fc1 = nn.Linear(1024, 512)
+        self.fc1 = nn.Linear(self.emb_dims, 512)
         self.bn1 = nn.BatchNorm1d(512)
         self.drop1 = nn.Dropout(0.4)
         self.fc2 = nn.Linear(512, 256)

@@ -88,7 +88,9 @@ def main(
     logger = TensorBoardLogger(
         save_dir='./logs',
         log_graph=True,
-        name='{}_batch_{}_epochs_{}'.format(model_name, batch_size, epochs),
+        name='{}_dim_{}_batch_{}_epochs_{}'.format(
+            model_name, embed_dim, batch_size, epochs
+        ),
     )
 
     checkpoint_callback = ModelCheckpoint(

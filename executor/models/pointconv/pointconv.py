@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from .utils.pointconv_utils import PointConvDensityNet
+from .pointconv_utils import PointConvDensityNet
 
 
 class PointConv(torch.nn.Module):
