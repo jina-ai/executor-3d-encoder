@@ -5,7 +5,7 @@ import torch
 from torch.nn import functional as F
 from torchmetrics.functional import accuracy
 
-from .models import MeshDataModel
+from .modeling import MeshDataModel
 
 AVAILABLE_MODELS = {
     'PointNet-Shapenet-d1024': {
@@ -108,14 +108,14 @@ class MeshDataEncoderPL(pl.LightningModule):
 
     def training_step(self, train_batch, batch_idx):
         x, y = train_batch
-        logits = self(x)
+        logits = self._model(x)
         loss = F.nll_loss(F.log_softmax(logits, dim=1), y)
         self.log('train_loss', loss)
         return loss
 
     def validation_step(self, val_batch, batch_idx):
         x, y = val_batch
-        logits = self(x)
+        logits = self._model(x)
         loss = F.nll_loss(F.log_softmax(logits, dim=1), y)
 
         preds = torch.argmax(logits, dim=1)

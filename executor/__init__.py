@@ -1,2 +1,2 @@
 from .encoder import MeshDataEncoder
-from .encoder_pl import MeshDataEncoderPL
+from .models.encoder_pl import MeshDataEncoderPL
