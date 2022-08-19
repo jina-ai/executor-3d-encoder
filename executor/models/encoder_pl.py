@@ -102,12 +102,12 @@ class MeshDataEncoderPL(pl.LightningModule):
         return embedding
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=5e-4)
-        scheduler = torch.optim.lr_scheduler.MultiStepLR(
-            optimizer, milestones=[30, 60], gamma=0.5
+        self.optimizer = torch.optim.Adam(self.parameters(), lr=5e-4)
+        self.scheduler = torch.optim.lr_scheduler.MultiStepLR(
+            self.optimizer, milestones=[30, 60], gamma=0.5
         )
 
-        return {'optimizer': optimizer, 'lr_scheduler': scheduler}
+        return {'optimizer': self.optimizer, 'lr_scheduler': self.scheduler}
 
     def training_step(self, train_batch, batch_idx):
         x, y = train_batch
