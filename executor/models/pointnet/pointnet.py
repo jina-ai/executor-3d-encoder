@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from .pooling import Pooling
+from ..pooling import Pooling
 
 
 class PointNet(nn.Module):
