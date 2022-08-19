@@ -1,3 +1,4 @@
+from ctypes import DEFAULT_MODE
 from typing import Optional
 
 import pytorch_lightning as pl
@@ -34,12 +35,14 @@ AVAILABLE_MODELS = {
     },
 }
 
+DEFAULT_MODEL_NAME = 'pointconv'
+
 
 class MeshDataEncoderPL(pl.LightningModule):
     def __init__(
         self,
         pretrained_model: str = None,
-        default_model_name='pointconv',
+        default_model_name=DEFAULT_MODEL_NAME,
         model_path: Optional[str] = None,
         hidden_dim: int = 1024,
         embed_dim: int = 1024,
