@@ -1,4 +1,5 @@
 import pathlib
+import time
 
 import click
 import torch
@@ -19,7 +20,10 @@ from executor import MeshDataEncoderPL
     help='The proportion of training samples out of the whole training dataset',
 )
 @click.option('--eval_dataset', help='The evaluation dataset file path')
-@click.option('--embed_dim', default=512, help='The embedding dimension')
+@click.option(
+    '--embed_dim', default=512, help='The embedding dimension of the final outputs'
+)
+@click.option('--hidden_dim', default=1024, help='The dimension of the used models')
 @click.option(
     '--checkpoint_path',
     type=click.Path(file_okay=True, path_type=pathlib.Path),
@@ -42,6 +46,7 @@ def main(
     eval_dataset,
     model_name,
     embed_dim,
+    hidden_dim,
     batch_size,
     epochs,
     use_gpu,
@@ -50,7 +55,11 @@ def main(
     devices,
     seed,
 ):
+    seed = int(time.time())
+
     torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+
     if use_gpu:
         device = 'cuda'
     else:
@@ -62,7 +71,10 @@ def main(
         )
     else:
         model = MeshDataEncoderPL(
-            default_model_name=model_name, embed_dim=embed_dim, device=device
+            default_model_name=model_name,
+            embed_dim=embed_dim,
+            device=device,
+            hidden_dim=hidden_dim,
         )
 
     train_and_val_data = ModelNet40(train_dataset, seed=seed)
@@ -88,8 +100,8 @@ def main(
     logger = TensorBoardLogger(
         save_dir='./logs',
         log_graph=True,
-        name='{}_dim_{}_batch_{}_epochs_{}'.format(
-            model_name, embed_dim, batch_size, epochs
+        name='{}_dim_{}_batch_{}_epochs_{}_seed_{}'.format(
+            model_name, embed_dim, batch_size, epochs, seed
         ),
     )
 

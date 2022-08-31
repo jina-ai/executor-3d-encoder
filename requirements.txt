@@ -1,3 +1,4 @@
 -f https://download.pytorch.org/whl/torch_stable.html
 pytest
+pytorch_lightning==1.6.5
 torch==1.9.0+cpu

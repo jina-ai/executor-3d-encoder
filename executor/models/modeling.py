@@ -2,6 +2,7 @@ import torch
 from torch import nn
 
 from .pointconv import MLP, PointConv
+from .pointmlp import pointMLP, pointMLPElite
 from .pointnet import PointNet
 from .pointnet2 import PointNet2
 from .repsurf import RepSurf
@@ -73,6 +74,12 @@ class MeshDataModel(nn.Module):
                 input_shape=input_shape,
                 classifier=False,
             )
+        elif model_name == 'pointmlp':
+            self._point_encoder = pointMLP(classifier=False, embed_dim=hidden_dim)
+        elif model_name == 'pointmlp-elite':
+            self._point_encoder = pointMLPElite(classifier=False, embed_dim=hidden_dim)
+        else:
+            raise NotImplementedError('The model has not been implemented yet!')
 
         if model_path:
             if model_path.startswith('http'):
