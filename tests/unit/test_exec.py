@@ -6,18 +6,30 @@ from executor import MeshDataEncoder
 
 
 @pytest.mark.parametrize(
-    'model_name',
-    ['pointconv', 'pointnet', 'pointnet2', 'pointmlp', 'curvenet', 'repsurf'],
+    'model_name, hidden_dim, embed_dim',
+    [
+        ('pointconv', 1024, 1024),
+        ('pointnet', 1024, 1024),
+        ('pointnet2', 1024, 1024),
+        ('pointmlp', 64, 32),
+        ('curvenet', 1024, 1024),
+        ('repsurf', 1024, 1024),
+    ],
 )
-def test_encoder(model_name):
-    encoder = MeshDataEncoder(pretrained_model=None, default_model_name=model_name)
+def test_encoder(model_name, hidden_dim, embed_dim):
+    encoder = MeshDataEncoder(
+        pretrained_model=None,
+        default_model_name=model_name,
+        hidden_dim=hidden_dim,
+        embed_dim=embed_dim,
+    )
 
     docs = DocumentArray(Document(tensor=np.random.random((1024, 3))))
 
     encoder.encode(docs)
 
     assert docs[0].embedding is not None
-    assert docs[0].embedding.shape == (1024,)
+    assert docs[0].embedding.shape == (embed_dim,)
 
 
 def test_filter():
