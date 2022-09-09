@@ -37,13 +37,13 @@ def test_integration(model_name: str):
 def test_integration_pytorch_lightning(model_name: str):
     encoder = MeshDataEncoderPL(default_model_name=model_name)
 
-    train_and_val_data = RandomDataset(npoints=10)
+    train_and_val_data = RandomDataset(npoints=5)
     test_data = RandomDataset(npoints=2)
 
-    train_data, validate_data = random_split(train_and_val_data, [8, 2])
+    train_data, validate_data = random_split(train_and_val_data, [4, 1])
 
     train_loader = DataLoader(train_data, batch_size=2, shuffle=True)
-    validate_loader = DataLoader(validate_data, batch_size=2, shuffle=True)
+    validate_loader = DataLoader(validate_data, batch_size=1, shuffle=True)
     test_loader = DataLoader(test_data, batch_size=2, shuffle=True)
 
     trainer = Trainer(
@@ -58,3 +58,12 @@ def test_integration_pytorch_lightning(model_name: str):
 
     encoder.eval()
     trainer.test(encoder, dataloaders=test_loader)
+
+    data = np.random.random((5, 1024, 3))
+    embedding = encoder.forward(data)
+
+    assert embedding is not None
+    assert embedding.shape == (
+        5,
+        1024,
+    )
