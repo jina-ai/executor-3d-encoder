@@ -5,7 +5,10 @@ from jina import Document, DocumentArray
 from executor import MeshDataEncoder
 
 
-@pytest.mark.parametrize('model_name', ['pointconv', 'pointnet'])
+@pytest.mark.parametrize(
+    'model_name',
+    ['pointconv', 'pointnet', 'pointnet2', 'pointmlp', 'curvenet', 'repsurf'],
+)
 def test_encoder(model_name):
     encoder = MeshDataEncoder(pretrained_model=None, default_model_name=model_name)
 
