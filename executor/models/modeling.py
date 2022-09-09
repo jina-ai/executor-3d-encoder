@@ -1,6 +1,7 @@
 import torch
 from torch import nn
 
+from .curvenet import CurveNet
 from .pointconv import MLP, PointConv
 from .pointmlp import pointMLP, pointMLPElite
 from .pointnet import PointNet
@@ -78,6 +79,12 @@ class MeshDataModel(nn.Module):
             self._point_encoder = pointMLP(classifier=False, embed_dim=hidden_dim)
         elif model_name == 'pointmlp-elite':
             self._point_encoder = pointMLPElite(classifier=False, embed_dim=hidden_dim)
+        elif model_name == 'curvenet':
+            self._point_encoder = CurveNet(
+                emb_dims=hidden_dim,
+                input_shape=input_shape,
+                classifier=False,
+            )
         else:
             raise NotImplementedError('The model has not been implemented yet!')
 

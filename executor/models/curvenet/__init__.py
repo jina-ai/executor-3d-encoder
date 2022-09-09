@@ -1,0 +1,1 @@
+from .curvenet import CurveNet
