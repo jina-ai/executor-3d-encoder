@@ -481,7 +481,7 @@ class CurveGrouping(nn.Module):
 
         # print(start_index.shape)
         # torch.Size([2, 1, 100])
-        start_index = start_index.squeeze().unsqueeze(2)
+        start_index = start_index.squeeze(1).unsqueeze(2)
 
         curves = self.walk(xyz, x, idx, start_index)  # bs, c, c_n, c_l
 
