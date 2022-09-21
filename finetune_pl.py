@@ -91,11 +91,16 @@ def main(
     )
     test_data = ModelNet40(eval_dataset, seed=seed)
 
+    # drop_last=True, avoid batch=1 error from BatchNorm
     train_loader = DataLoader(
-        train_data, batch_size=batch_size, shuffle=True, num_workers=8
+        train_data, batch_size=batch_size, shuffle=True, num_workers=8, drop_last=True
     )
     validate_loader = DataLoader(
-        validate_data, batch_size=batch_size, shuffle=False, num_workers=8
+        validate_data,
+        batch_size=batch_size,
+        shuffle=False,
+        num_workers=8,
+        drop_last=True,
     )
 
     test_loader = DataLoader(
@@ -131,6 +136,9 @@ def main(
     print(checkpoint_callback.best_model_path)
 
     model.eval()
+    print('Validation set:')
+    trainer.test(model, dataloaders=validate_loader)
+    print('Testing set:')
     trainer.test(model, dataloaders=test_loader)
 
 

@@ -62,7 +62,7 @@ class Walk(nn.Module):
         norm1 = torch.norm(cur, dim=1, keepdim=True)
         norm2 = torch.norm(neighbor, dim=1, keepdim=True)
         divider = torch.clamp(norm1 * norm2, min=1e-8)
-        ans = torch.div(dot, divider).squeeze()  # bs*n, k
+        ans = torch.div(dot, divider).squeeze(1)  # bs*n, k
 
         # normalize to [0, 1]
         ans = 1.0 + ans
@@ -106,7 +106,7 @@ class Walk(nn.Module):
             else:
                 # dynamic momentum
                 cat_feature = torch.cat(
-                    (cur_feature.squeeze(), pre_feature.squeeze()), dim=1
+                    (cur_feature.squeeze(3), pre_feature.squeeze(3)), dim=1
                 )
                 att_feature = F.softmax(self.momentum_mlp(cat_feature), dim=1).view(
                     bn, 1, self.curve_num, 2
@@ -169,7 +169,7 @@ class Walk(nn.Module):
 
             cur = torch.argmax(pre_feature_expand, dim=-1).view(-1, 1)  # bs * n, 1
 
-            flatten_cur = batched_index_select(pick_idx, 1, cur).squeeze()  # bs * n
+            flatten_cur = batched_index_select(pick_idx, 1, cur).squeeze(1)  # bs * n
 
             # collect curve progress
             curves.append(cur_feature)
