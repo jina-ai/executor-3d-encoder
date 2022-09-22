@@ -29,7 +29,12 @@ from executor import MeshDataEncoderPL
     type=click.Path(file_okay=True, path_type=pathlib.Path),
     help='The path of checkpoint',
 )
-@click.option('--model_name', default='pointnet', help='The model name')
+@click.option(
+    '--model_name',
+    default='pointnet',
+    choices=['pointnet', 'pointnet2', 'curvenet', 'pointmlp', 'pointconv', 'repsurf'],
+    help='The model name',
+)
 @click.option('--batch_size', default=128, help='The size of each batch')
 @click.option('--epochs', default=50, help='The epochs of training process')
 @click.option('--use-gpu/--no-use-gpu', default=True, help='If True to use gpu')

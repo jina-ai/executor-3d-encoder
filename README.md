@@ -67,7 +67,8 @@ $ python finetune.py --model_name pointconv \
 ### Finetune pretrained-model with Pytorch Lightning
 #### prepare dataset
 
-To use your customized dataset, you should design your own dataset code, like those in `datasets/` directory. Here `datasets/modelnet40.py` is an example:
+To use your customized dataset, you should design your own dataset code, like those in `datasets/` directory. Here `datasets/modelnet40.py` is an example, you must at least implement `__len__` and `__getitem__` functions according to your logics.
+
 
 ```python
 class ModelNet40(torch.utils.data.Dataset):
@@ -93,6 +94,7 @@ class ModelNet40(torch.utils.data.Dataset):
 
 #### finetuning model with labeled dataset
 
+Now we support PointNet, PointConv, PointNet++, PointMLP, RepSurf and Curvenet. To know more details about the arguments, please run `python finetune_pl.py --help` in cmd.
 ```bash
 $ python finetune_pl.py --help
 
