@@ -4,8 +4,8 @@ from jina import DocumentArray, Flow
 from pytorch_lightning import Trainer
 from torch.utils.data import DataLoader, random_split
 
-from datasets import RandomDataset
 from executor import MeshDataEncoder, MeshDataEncoderPL
+from tests.conftest import create_torch_dataset
 
 
 @pytest.mark.parametrize(
@@ -20,7 +20,7 @@ def test_integration(model_name: str):
         uses_with={'pretrained_model': None, 'default_model_name': model_name},
     ) as flow:
         resp = flow.post(
-            on='/index',
+            on='/encoder',
             inputs=docs,
             return_results=True,
         )
@@ -37,8 +37,8 @@ def test_integration(model_name: str):
 def test_integration_pytorch_lightning(model_name: str):
     encoder = MeshDataEncoderPL(default_model_name=model_name)
 
-    train_and_val_data = RandomDataset(npoints=5)
-    test_data = RandomDataset(npoints=2)
+    train_and_val_data = create_torch_dataset(npoints=5)
+    test_data = create_torch_dataset(npoints=2)
 
     train_data, validate_data = random_split(train_and_val_data, [4, 1])
 

@@ -1,7 +1,6 @@
 import numpy as np
+import pytest
 from torch.utils.data import Dataset
-
-from preprocess import preprocess
 
 
 class RandomDataset(Dataset):
@@ -18,3 +17,8 @@ class RandomDataset(Dataset):
             self.points,
             self.labels[index],
         )
+
+
+@pytest.fixture()
+def create_torch_dataset(n_points, n_classes=40):
+    return RandomDataset(n_points, n_classes)
