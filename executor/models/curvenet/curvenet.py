@@ -1,10 +1,11 @@
 """Adapted from: https://github.com/tiangexiang/CurveNet/blob/main/core/models/curvenet_cls.py
 """
 
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from .curvenet_utils import *
+from .curvenet_utils import CIC, LPFA
 
 curve_config = {
     'default': [[100, 5], [100, 5], None, None],
@@ -22,6 +23,16 @@ class CurveNet(nn.Module):
         classifier=False,
         input_shape='bnc',
     ):
+        """The code is adapted from https://github.com/tiangexiang/CurveNet.git
+
+        Args:
+            emb_dims (int, optional): The dimensions for output embeddings. Defaults to 1024.
+            num_classes (int, optional): the number of classes in classification tasks. Defaults to 40.
+            k (int, optional): top k for clustering. Defaults to 20.
+            setting (str, optional): choices for curvenet's settings. Defaults to 'default'.
+            classifier (bool, optional): use curvenet as a classifier or a representative model. Defaults to False.
+            input_shape (str, optional): the shape of the input data, which can be 'bnc' or 'bcn'. Defaults to 'bnc'.
+        """
         super(CurveNet, self).__init__()
 
         self.use_classifer = classifier
