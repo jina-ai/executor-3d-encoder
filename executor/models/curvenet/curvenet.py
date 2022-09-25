@@ -35,7 +35,7 @@ class CurveNet(nn.Module):
         """
         super(CurveNet, self).__init__()
 
-        self.use_classifer = classifier
+        self.use_classifier = classifier
         self.input_shape = input_shape
 
         assert setting in curve_config
@@ -161,7 +161,7 @@ class CurveNet(nn.Module):
 
         x = torch.cat((x_max, x_avg), dim=1).squeeze(-1)
         x = F.relu(self.bn1(self.conv1(x).unsqueeze(-1)), inplace=True).squeeze(-1)
-        if self.use_classifer:
+        if self.use_classifier:
             x = self.dp1(x)
             x = self.conv2(x)
         return x
