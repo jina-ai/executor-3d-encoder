@@ -30,6 +30,11 @@ from executor import MeshDataEncoderPL
     help='The path of checkpoint',
 )
 @click.option(
+    '--output_path',
+    type=click.Path(file_okay=True, path_type=pathlib.Path),
+    help='The path of output files',
+)
+@click.option(
     '--model_name',
     default='pointnet',
     choices=['pointnet', 'pointnet2', 'curvenet', 'pointmlp', 'pointconv', 'repsurf'],
@@ -56,6 +61,7 @@ def main(
     epochs,
     use_gpu,
     checkpoint_path,
+    output_path,
     interactive,
     devices,
     seed,
@@ -108,7 +114,7 @@ def main(
     )
 
     logger = TensorBoardLogger(
-        save_dir='./logs',
+        save_dir='./logs' if output_path is None else output_path,
         log_graph=True,
         name='{}_dim_{}_batch_{}_epochs_{}_seed_{}'.format(
             model_name, embed_dim, batch_size, epochs, seed
