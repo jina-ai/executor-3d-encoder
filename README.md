@@ -111,7 +111,9 @@ $ python finetune_pl.py --model_name pointconv \
 
 ## Benchmark
 
-| model name | batch size | embedding dims | hidden dims | modelnet40 test overall accuracy |
+Below is the models' performance of 3D point cloud classification on ModelNet40 test dataset.
+
+| model name | batch size | embedding dims | hidden dims | ModelNet40 test overall accuracy |
 |------------|------------|----------------|-------------|----------------------------------|
 | pointnet   | 64         | 512            | 512         | 78.48%                           |
 | pointnet   | 64         | 1024           | 512         | 80.99%                           |
