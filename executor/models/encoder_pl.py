@@ -3,6 +3,8 @@ from typing import Optional
 
 import pytorch_lightning as pl
 import torch
+from finetuner.tuner.pytorch.losses import TripletLoss
+from finetuner.tuner.pytorch.miner import TripletEasyHardMiner
 from torch.nn import functional as F
 from torchmetrics.functional import accuracy
 
@@ -96,35 +98,42 @@ class MeshDataEncoderPL(pl.LightningModule):
         self._device = device
         self._batch_size = batch_size
         self._filters = filters
+        # bnc
+        self.example_input_array = torch.zeros((batch_size, 1024, 3))
 
     def forward(self, x):
         embedding = self._model(x)
         return embedding
 
     def configure_optimizers(self):
-        self.optimizer = torch.optim.Adam(self.parameters(), lr=5e-4)
-        self.scheduler = torch.optim.lr_scheduler.MultiStepLR(
-            self.optimizer, milestones=[30, 60], gamma=0.5
+        optimizer = torch.optim.Adam(self.parameters(), lr=5e-4)
+        scheduler = torch.optim.lr_scheduler.MultiStepLR(
+            optimizer, milestones=[30, 60], gamma=0.5
         )
 
-        return {'optimizer': self.optimizer, 'lr_scheduler': self.scheduler}
+        return {'optimizer': optimizer, 'lr_scheduler': scheduler}
 
-    def training_step(self, train_batch, batch_idx):
+    def training_step(self, train_batch, _batch_idx):
         x, y = train_batch
-        logits = self._model(x)
-        loss = F.nll_loss(F.log_softmax(logits, dim=1), y)
+        loss_fn = TripletLoss(
+            miner=TripletEasyHardMiner(pos_strategy='easy', neg_strategy='semihard')
+        )
+        embeddings = self._model(x)
+        loss = loss_fn(embeddings, y)
         self.log('train_loss', loss)
         return loss
 
-    def validation_step(self, val_batch, batch_idx):
-        x, y = val_batch
-        logits = self._model(x)
-        loss = F.nll_loss(F.log_softmax(logits, dim=1), y)
+    def evaluate(self, batch, stage):
+        x, y = batch
+        loss_fn = TripletLoss(
+            miner=TripletEasyHardMiner(pos_strategy='easy', neg_strategy='semihard')
+        )
+        embeddings = self._model(x)
+        loss = loss_fn(embeddings, y)
+        self.log(f'{stage}_loss', loss, prog_bar=True)
 
-        preds = torch.argmax(logits, dim=1)
-        acc = accuracy(preds, y)
-        self.log('val_loss', loss, prog_bar=True)
-        self.log('val_acc', acc, prog_bar=True)
+    def validation_step(self, val_batch, _batch_idx):
+        self.evaluate(val_batch, 'val')
 
-    def test_step(self, test_batch, batch_idx):
-        return self.validation_step(test_batch, batch_idx)
+    def test_step(self, test_batch, _batch_idx):
+        self.evaluate(test_batch, 'test')

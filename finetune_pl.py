@@ -114,10 +114,10 @@ def main(
     )
 
     logger = TensorBoardLogger(
-        save_dir='./logs' if output_path is None else output_path,
+        save_dir='./finetune_logs' if output_path is None else output_path,
         log_graph=True,
-        name='{}_dim_{}_batch_{}_epochs_{}_seed_{}'.format(
-            model_name, embed_dim, batch_size, epochs, seed
+        name='{}_hidden_{}_embed_{}_batch_{}_epochs_{}_seed_{}'.format(
+            model_name, hidden_dim, embed_dim, batch_size, epochs, seed
         ),
     )
 
