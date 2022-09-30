@@ -86,6 +86,7 @@ def main(
             embed_dim=embed_dim,
             device=device,
             hidden_dim=hidden_dim,
+            batch_size=batch_size,
         )
 
     train_and_val_data = ModelNet40(train_dataset, seed=seed)
