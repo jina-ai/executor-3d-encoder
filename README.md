@@ -111,7 +111,19 @@ $ python finetune_pl.py --model_name pointconv \
 
 ## Benchmark
 
-to be done
+| model name | batch size | embedding dims | hidden dims | modelnet40 test overall accuracy |
+|------------|------------|----------------|-------------|----------------------------------|
+| pointnet   | 64         | 512            | 512         | 78.48%                           |
+| pointnet   | 64         | 1024           | 512         | 80.99%                           |
+| pointnet   | 64         | 1024           | 1024        | 82.00%                           |
+| pointnet++ | 64         | 1024           | 1024        | 85.49%                           |
+| pointconv  | 64         | 512            | 512         | 84.44%                           |
+| pointconv  | 64         | 1024           | 512         | 84.08%                           |
+| pointconv  | 64         | 1024           | 1024        | 82.17%                           |
+| pointmlp   | 64         | 64             | 64          | 87.10%                           |
+| repsurf    | 64         | 512            | 512         | 87.32%                           |
+| repsurf    | 64         | 1024           | 512         | 84.72%                           |
+| repsurf    | 64         | 1024           | 1024        | 86.59%                           |
 
 ## References
 
