@@ -109,6 +109,10 @@ $ python finetune_pl.py --model_name pointconv \
     --epochs 50
 ```
 
+## Benchmark
+
+to be done
+
 ## References
 
 - [PointNet](https://arxiv.org/abs/1612.00593):  Deep Learning on Point Sets for 3D Classification and Segmentation
