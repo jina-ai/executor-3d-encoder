@@ -28,6 +28,7 @@ def get_model(model_name: str, hidden_dim: int, input_shape: str, classifier: bo
             input_shape=input_shape,
             use_bn=True,
             global_feat=True,
+            classifier=classifier,
         )
     elif model_name == 'pointconv':
         return PointConv(
