@@ -134,7 +134,7 @@ class CurveNet(nn.Module):
             nn.ReLU(inplace=True),
         )
         self.conv1 = nn.Linear(1024 * 2, emb_dims, bias=False)
-        self.conv2 = nn.Linear(512, num_classes)
+        self.conv2 = nn.Linear(emb_dims, num_classes)
         self.bn1 = nn.BatchNorm1d(emb_dims)
         self.dp1 = nn.Dropout(p=0.5)
 
