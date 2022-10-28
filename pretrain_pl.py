@@ -34,7 +34,7 @@ from executor import MeshDataClassifierPL
 @click.option('--model_name', default='pointnet', help='The model name')
 @click.option('--batch_size', default=128, help='The size of each batch')
 @click.option('--epochs', default=50, help='The epochs of training process')
-@click.option('--use-gpu/--no-use-gpu', default=True, help='If True to use gpu')
+@click.option('--use-gpu/--no-use-gpu', default=False, help='If True to use gpu')
 @click.option(
     '--devices', default=7, help='The number of gpus/tpus you can use for training'
 )
@@ -112,7 +112,7 @@ def main(
         save_top_k=5,
         monitor='val_loss',
         mode='min',
-        filename='{epoch:02d}-{val_loss:.2f}-{val_acc:.2f}',
+        filename='{epoch:02d}-{val_loss:.2f}-{val_acc:.4f}',
     )
 
     trainer = Trainer(
@@ -123,6 +123,7 @@ def main(
         enable_checkpointing=True,
         logger=logger,
         callbacks=[checkpoint_callback],
+        gradient_clip_val=1.0,
     )
     model.train()
     trainer.fit(model, train_loader, validate_loader)

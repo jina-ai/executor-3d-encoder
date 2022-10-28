@@ -35,15 +35,38 @@ class MeshDataClassifierPL(pl.LightningModule):
         self._batch_size = batch_size
         # bnc
         self.example_input_array = torch.zeros((batch_size, 1024, 3))
+        self._model_name = model_name
 
     def forward(self, x):
         return self._model(x)
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=5e-4)
-        scheduler = torch.optim.lr_scheduler.MultiStepLR(
-            optimizer, milestones=[30, 60], gamma=0.5
-        )
+        # optimizer and scheduler adapted from upstream
+        if self._model_name == 'pointmlp':
+            # 300 epochs
+            optimizer = torch.optim.SGD(
+                self.parameters(), lr=0.1, momentum=0.9, weight_decay=2e-4
+            )
+            scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+                optimizer, 300, eta_min=0.005, last_epoch=-1
+            )
+        elif self._model_name == 'repsurf':
+            # 500 epochs
+            optimizer = torch.optim.Adam(
+                self.parameters(),
+                lr=0.001,
+                betas=(0.9, 0.999),
+                eps=1e-08,
+                weight_decay=1e-4,
+            )
+            scheduler = torch.optim.lr_scheduler.StepLR(
+                optimizer, step_size=20, gamma=0.7
+            )
+        else:
+            optimizer = torch.optim.Adam(self.parameters(), lr=5e-4)
+            scheduler = torch.optim.lr_scheduler.MultiStepLR(
+                optimizer, milestones=[30, 60], gamma=0.5
+            )
 
         return {'optimizer': optimizer, 'lr_scheduler': scheduler}
 
