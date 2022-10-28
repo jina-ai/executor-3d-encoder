@@ -42,7 +42,7 @@ from executor import MeshDataEncoderPL
 )
 @click.option('--batch_size', default=128, help='The size of each batch')
 @click.option('--epochs', default=50, help='The epochs of training process')
-@click.option('--use-gpu/--no-use-gpu', default=False, help='If True to use gpu')
+@click.option('--use-gpu/--no-use-gpu', default=True, help='If True to use gpu')
 @click.option(
     '--interactive', default=False, help='set to True if you have unlabeled data'
 )

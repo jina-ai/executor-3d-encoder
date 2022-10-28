@@ -1,11 +1,9 @@
-from typing import Optional
-
 import pytorch_lightning as pl
 import torch
 from torch.nn import functional as F
 from torchmetrics.functional import accuracy
 
-from .modeling import MeshDataModel, get_model
+from .modeling import get_model
 
 DEFAULT_MODEL_NAME = 'pointconv'
 
