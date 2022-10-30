@@ -80,9 +80,7 @@ class Walk(nn.Module):
         x = x.transpose(1, 2).contiguous()  # bs, n, c
 
         flatten_x = x.view(bn * tot_points, -1)
-        batch_offset = (
-            torch.arange(0, bn, device=torch.device('cuda')).detach() * tot_points
-        )
+        batch_offset = torch.arange(0, bn, device=x.device).detach() * tot_points
 
         # indices of neighbors for the starting points
         tmp_adj = (adj + batch_offset.view(-1, 1, 1)).view(
