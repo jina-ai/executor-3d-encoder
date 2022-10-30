@@ -4,21 +4,31 @@ from torch.utils.data import Dataset
 
 
 class RandomDataset(Dataset):
-    def __init__(self, npoints, n_classes=40) -> None:
+    def __init__(self, n_samples, n_points=1024, n_classes=40) -> None:
         super().__init__()
-        self.points = np.random.random((npoints, 1024, 3))
-        self.labels = np.random.randint(n_classes, size=(npoints, 1024, 1))
+        self.n_samples = n_samples
+        self.points = np.random.random((n_samples, n_points, 3)).astype(np.float32)
+        self.labels = np.sort(np.random.randint(n_classes, size=(n_samples,)))
 
     def __len__(self):
-        return len(self.labels)
+        return self.n_samples
 
     def __getitem__(self, index):
         return (
-            self.points,
+            self.points[index],
             self.labels[index],
         )
 
 
+def create_torch_dataset(n_samples, n_points=1024, n_classes=40):
+    return RandomDataset(n_samples, n_points, n_classes)
+
+
 @pytest.fixture()
-def create_torch_dataset(n_points, n_classes=40):
-    return RandomDataset(n_points, n_classes)
+def train_and_val_data():
+    return create_torch_dataset(200)
+
+
+@pytest.fixture()
+def test_data():
+    return create_torch_dataset(200)

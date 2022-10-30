@@ -1,11 +1,11 @@
 import numpy as np
 import pytest
+import torch
 from jina import DocumentArray, Flow
 from pytorch_lightning import Trainer
 from torch.utils.data import DataLoader, random_split
 
 from executor import MeshDataEncoder, MeshDataEncoderPL
-from tests.conftest import create_torch_dataset
 
 
 @pytest.mark.parametrize(
@@ -34,17 +34,16 @@ def test_integration(model_name: str):
     'model_name',
     ['pointconv', 'pointnet', 'pointnet2', 'pointmlp', 'repsurf', 'curvenet'],
 )
-def test_integration_pytorch_lightning(model_name: str):
+def test_integration_pytorch_lightning(model_name: str, train_and_val_data, test_data):
     encoder = MeshDataEncoderPL(default_model_name=model_name)
 
-    train_and_val_data = create_torch_dataset(npoints=5)
-    test_data = create_torch_dataset(npoints=2)
+    train_data, validate_data = random_split(train_and_val_data, [120, 80])
 
-    train_data, validate_data = random_split(train_and_val_data, [4, 1])
-
-    train_loader = DataLoader(train_data, batch_size=2, shuffle=True)
-    validate_loader = DataLoader(validate_data, batch_size=1, shuffle=True)
-    test_loader = DataLoader(test_data, batch_size=2, shuffle=True)
+    train_loader = DataLoader(train_data, batch_size=32, shuffle=True, drop_last=True)
+    validate_loader = DataLoader(
+        validate_data, batch_size=32, shuffle=True, drop_last=True
+    )
+    test_loader = DataLoader(test_data, batch_size=32, shuffle=True, drop_last=True)
 
     trainer = Trainer(
         accelerator='cpu',
@@ -59,7 +58,7 @@ def test_integration_pytorch_lightning(model_name: str):
     encoder.eval()
     trainer.test(encoder, dataloaders=test_loader)
 
-    data = np.random.random((5, 1024, 3))
+    data = torch.from_numpy(np.random.random((5, 1024, 3)).astype(np.float32))
     embedding = encoder.forward(data)
 
     assert embedding is not None
