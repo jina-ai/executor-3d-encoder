@@ -37,7 +37,9 @@ from executor import MeshDataEncoderPL
 @click.option(
     '--model_name',
     default='pointnet',
-    choices=['pointnet', 'pointnet2', 'curvenet', 'pointmlp', 'pointconv', 'repsurf'],
+    type=click.Choice(
+        ['pointnet', 'pointnet2', 'curvenet', 'pointmlp', 'pointconv', 'repsurf']
+    ),
     help='The model name',
 )
 @click.option('--batch_size', default=128, help='The size of each batch')
