@@ -31,11 +31,22 @@ def test_integration(model_name: str):
 
 
 @pytest.mark.parametrize(
-    'model_name',
-    ['pointconv', 'pointnet', 'pointnet2', 'pointmlp', 'repsurf', 'curvenet'],
+    'model_name, hidden_dim, embed_dim',
+    [
+        ('pointconv', 1024, 1024),
+        ('pointnet', 1024, 1024),
+        ('pointnet2', 1024, 1024),
+        ('pointmlp', 64, 32),
+        ('curvenet', 1024, 1024),
+        ('repsurf', 1024, 1024),
+    ],
 )
-def test_integration_pytorch_lightning(model_name: str, train_and_val_data, test_data):
-    encoder = MeshDataEncoderPL(default_model_name=model_name)
+def test_integration_pytorch_lightning(
+    model_name: str, hidden_dim, embed_dim, train_and_val_data, test_data
+):
+    encoder = MeshDataEncoderPL(
+        default_model_name=model_name, hidden_dim=hidden_dim, embed_dim=embed_dim
+    )
 
     train_data, validate_data = random_split(train_and_val_data, [120, 80])
 
