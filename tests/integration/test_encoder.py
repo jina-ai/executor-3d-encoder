@@ -33,12 +33,11 @@ def test_integration(model_name: str):
 @pytest.mark.parametrize(
     'model_name, hidden_dim, embed_dim',
     [
-        ('pointconv', 1024, 1024),
-        ('pointnet', 1024, 1024),
-        ('pointnet2', 1024, 1024),
+        ('pointnet', 512, 512),
+        ('pointnet2', 512, 512),
         ('pointmlp', 64, 32),
-        ('curvenet', 1024, 1024),
-        ('repsurf', 1024, 1024),
+        ('curvenet', 512, 512),
+        ('repsurf', 512, 512),
     ],
 )
 def test_integration_pytorch_lightning(
@@ -58,7 +57,7 @@ def test_integration_pytorch_lightning(
 
     trainer = Trainer(
         accelerator='cpu',
-        max_epochs=5,
+        max_epochs=2,
         check_val_every_n_epoch=1,
         enable_checkpointing=True,
     )
@@ -75,5 +74,5 @@ def test_integration_pytorch_lightning(
     assert embedding is not None
     assert embedding.shape == (
         5,
-        1024,
+        embed_dim,
     )
