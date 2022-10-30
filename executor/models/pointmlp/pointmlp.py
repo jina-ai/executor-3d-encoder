@@ -86,8 +86,9 @@ class LocalGrouper(nn.Module):
                     else new_points
                 )
                 mean = mean.unsqueeze(dim=-2)  # [B, npoint, 1, d+3]
+            diff = (grouped_points - mean).reshape(B, -1)
             std = (
-                torch.std((grouped_points - mean).reshape(B, -1), dim=-1, keepdim=True)
+                torch.std(diff, dim=-1, keepdim=True)
                 .unsqueeze(dim=-1)
                 .unsqueeze(dim=-1)
             )
