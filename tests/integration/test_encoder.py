@@ -1,16 +1,16 @@
 import numpy as np
 import pytest
+import torch
 from jina import DocumentArray, Flow
 from pytorch_lightning import Trainer
 from torch.utils.data import DataLoader, random_split
 
 from executor import MeshDataEncoder, MeshDataEncoderPL
-from tests.conftest import create_torch_dataset
 
 
 @pytest.mark.parametrize(
     'model_name',
-    ['pointconv', 'pointnet', 'pointnet2', 'pointmlp', 'curvenet', 'repsurf'],
+    ['pointconv', 'pointnet', 'pointnet2', 'curvenet', 'repsurf'],
 )
 def test_integration(model_name: str):
     docs = DocumentArray.empty(5)
@@ -31,24 +31,32 @@ def test_integration(model_name: str):
 
 
 @pytest.mark.parametrize(
-    'model_name',
-    ['pointconv', 'pointnet', 'pointnet2', 'pointmlp', 'repsurf', 'curvenet'],
+    'model_name, hidden_dim, embed_dim',
+    [
+        ('pointnet', 512, 512),
+        ('pointnet2', 512, 512),
+        ('curvenet', 512, 512),
+        ('repsurf', 512, 512),
+    ],
 )
-def test_integration_pytorch_lightning(model_name: str):
-    encoder = MeshDataEncoderPL(default_model_name=model_name)
+def test_integration_pytorch_lightning(
+    model_name: str, hidden_dim, embed_dim, train_and_val_data, test_data
+):
+    encoder = MeshDataEncoderPL(
+        default_model_name=model_name, hidden_dim=hidden_dim, embed_dim=embed_dim
+    )
 
-    train_and_val_data = create_torch_dataset(npoints=5)
-    test_data = create_torch_dataset(npoints=2)
+    train_data, validate_data = random_split(train_and_val_data, [120, 80])
 
-    train_data, validate_data = random_split(train_and_val_data, [4, 1])
-
-    train_loader = DataLoader(train_data, batch_size=2, shuffle=True)
-    validate_loader = DataLoader(validate_data, batch_size=1, shuffle=True)
-    test_loader = DataLoader(test_data, batch_size=2, shuffle=True)
+    train_loader = DataLoader(train_data, batch_size=32, shuffle=True, drop_last=True)
+    validate_loader = DataLoader(
+        validate_data, batch_size=32, shuffle=True, drop_last=True
+    )
+    test_loader = DataLoader(test_data, batch_size=32, shuffle=True, drop_last=True)
 
     trainer = Trainer(
         accelerator='cpu',
-        max_epochs=5,
+        max_epochs=2,
         check_val_every_n_epoch=1,
         enable_checkpointing=True,
     )
@@ -59,11 +67,11 @@ def test_integration_pytorch_lightning(model_name: str):
     encoder.eval()
     trainer.test(encoder, dataloaders=test_loader)
 
-    data = np.random.random((5, 1024, 3))
+    data = torch.from_numpy(np.random.random((5, 1024, 3)).astype(np.float32))
     embedding = encoder.forward(data)
 
     assert embedding is not None
     assert embedding.shape == (
         5,
-        1024,
+        embed_dim,
     )

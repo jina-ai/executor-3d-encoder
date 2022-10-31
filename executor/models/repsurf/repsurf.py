@@ -82,7 +82,7 @@ class RepSurf(torch.nn.Module):
         )
 
         # modelnet40
-        self.use_classfier = classifier
+        self.use_classifier = classifier
         self.classfier = nn.Sequential(
             nn.Linear(self.emb_dims, 512),
             nn.BatchNorm1d(512),
@@ -109,7 +109,7 @@ class RepSurf(torch.nn.Module):
 
         feature = feature.view(-1, self.emb_dims)
 
-        if self.use_classfier:
+        if self.use_classifier:
             feature = self.classfier(feature)
             feature = F.log_softmax(feature, -1)
 

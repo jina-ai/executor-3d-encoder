@@ -53,7 +53,7 @@ class PointNet2(nn.Module):
                 radius=None,
                 nsample=None,
                 in_channel=256 + 3,
-                mlp=[256, 512, 1024],
+                mlp=[256, 512, self.emb_dims],
                 group_all=True,
             )
         else:

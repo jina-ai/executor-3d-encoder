@@ -8,10 +8,10 @@ import click
 import finetuner
 import numpy as np
 import torch
+from docarray import Document, DocumentArray
 from finetuner.tuner.callback import BestModelCheckpoint
 from finetuner.tuner.pytorch.losses import TripletLoss
 from finetuner.tuner.pytorch.miner import TripletEasyHardMiner
-from docarray import Document, DocumentArray
 
 from executor.models import MeshDataModel
 
@@ -29,7 +29,7 @@ def preprocess(doc: 'Document', num_points: int = 1024, data_aug: bool = True):
     # points = np.transpose(points)
 
     points = points - np.expand_dims(np.mean(points, axis=0), 0)  # center
-    dist = np.max(np.sqrt(np.sum(points ** 2, axis=1)), 0)
+    dist = np.max(np.sqrt(np.sum(points**2, axis=1)), 0)
     points = points / dist  # scale
 
     if data_aug:
@@ -57,7 +57,7 @@ def preprocess(doc: 'Document', num_points: int = 1024, data_aug: bool = True):
 @click.option('--model_name', default='pointnet', help='The model name')
 @click.option('--batch_size', default=128, help='The pretrained clip model path')
 @click.option('--epochs', default=50, help='The pretrained clip model path')
-@click.option('--use-gpu/--no-use-gpu', default=False, help='If True to use gpu')
+@click.option('--use-gpu/--no-use-gpu', default=True, help='If True to use gpu')
 @click.option(
     '--interactive', default=False, help='set to True if you have unlabeled data'
 )

@@ -1,4 +1,6 @@
 -f https://download.pytorch.org/whl/torch_stable.html
+finetuner==0.4.1
+protobuf>=3.20.0
 pytest
 pytorch_lightning==1.6.5
 torch==1.9.0+cpu

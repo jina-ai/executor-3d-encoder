@@ -5,7 +5,15 @@ from ..pooling import Pooling
 
 
 class PointNet(nn.Module):
-    def __init__(self, emb_dims=1024, input_shape='bnc', use_bn=True, global_feat=True):
+    def __init__(
+        self,
+        emb_dims=1024,
+        input_shape='bnc',
+        use_bn=True,
+        global_feat=True,
+        num_classes=40,
+        classifier=False,
+    ):
         # emb_dims:			Embedding Dimensions for PointNet.
         # input_shape:		Shape of Input Point Cloud (b: batch, n: no of points, c: channels)
         super(PointNet, self).__init__()
@@ -21,6 +29,17 @@ class PointNet(nn.Module):
             self.pooling = Pooling('max')
 
         self.layers = self.create_model()
+        self.classifier = nn.Sequential(
+            nn.Linear(self.emb_dims, 512),
+            nn.BatchNorm1d(512),
+            nn.ReLU(),
+            nn.Linear(512, 256),
+            nn.Dropout(0.4),
+            nn.BatchNorm1d(256),
+            nn.ReLU(),
+            nn.Linear(256, num_classes),
+        )
+        self.use_classifier = classifier
 
     def create_model(self):
         self.conv1 = torch.nn.Conv1d(3, 64, 1)
@@ -92,9 +111,14 @@ class PointNet(nn.Module):
 
         if self.global_feat:
             output = self.pooling(output)
-            return output
+            embedding = output
         else:
             # output = output.view(-1, self.emb_dims, 1).repeat(1, 1, num_points)
             # output = self.pooling(output)
             output = output.view(-1, self.emb_dims, 1).repeat(1, 1, num_points)
-            return torch.cat([output, point_feature], 1)
+            embedding = torch.cat([output, point_feature], 1)
+
+        if self.use_classifier:
+            return self.classifier(embedding)
+        else:
+            return embedding

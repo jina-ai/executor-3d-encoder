@@ -9,7 +9,7 @@ from pytorch_lightning.loggers import TensorBoardLogger
 from torch.utils.data import DataLoader, random_split
 
 from datasets import ModelNet40
-from executor import MeshDataEncoderPL
+from executor import MeshDataClassifierPL
 
 
 @click.command()
@@ -20,9 +20,6 @@ from executor import MeshDataEncoderPL
     help='The proportion of training samples out of the whole training dataset',
 )
 @click.option('--eval_dataset', help='The evaluation dataset file path')
-@click.option(
-    '--embed_dim', default=512, help='The embedding dimension of the final outputs'
-)
 @click.option('--hidden_dim', default=1024, help='The dimension of the used models')
 @click.option(
     '--checkpoint_path',
@@ -34,20 +31,10 @@ from executor import MeshDataEncoderPL
     type=click.Path(file_okay=True, path_type=pathlib.Path),
     help='The path of output files',
 )
-@click.option(
-    '--model_name',
-    default='pointnet',
-    type=click.Choice(
-        ['pointnet', 'pointnet2', 'curvenet', 'pointmlp', 'pointconv', 'repsurf']
-    ),
-    help='The model name',
-)
+@click.option('--model_name', default='pointnet', help='The model name')
 @click.option('--batch_size', default=128, help='The size of each batch')
 @click.option('--epochs', default=50, help='The epochs of training process')
-@click.option('--use-gpu/--no-use-gpu', default=True, help='If True to use gpu')
-@click.option(
-    '--interactive', default=False, help='set to True if you have unlabeled data'
-)
+@click.option('--use-gpu/--no-use-gpu', default=False, help='If True to use gpu')
 @click.option(
     '--devices', default=7, help='The number of gpus/tpus you can use for training'
 )
@@ -57,14 +44,12 @@ def main(
     split_ratio,
     eval_dataset,
     model_name,
-    embed_dim,
     hidden_dim,
     batch_size,
     epochs,
     use_gpu,
     checkpoint_path,
     output_path,
-    interactive,
     devices,
     seed,
 ):
@@ -79,13 +64,12 @@ def main(
         device = 'cpu'
 
     if checkpoint_path:
-        model = MeshDataEncoderPL.load_from_checkpoint(
+        model = MeshDataClassifierPL.load_from_checkpoint(
             checkpoint_path, map_location=device
         )
     else:
-        model = MeshDataEncoderPL(
-            default_model_name=model_name,
-            embed_dim=embed_dim,
+        model = MeshDataClassifierPL(
+            model_name=model_name,
             device=device,
             hidden_dim=hidden_dim,
             batch_size=batch_size,
@@ -113,14 +97,14 @@ def main(
     )
 
     test_loader = DataLoader(
-        test_data, batch_size=batch_size, shuffle=False, num_workers=8, drop_last=True
+        test_data, batch_size=batch_size, shuffle=False, num_workers=8
     )
 
     logger = TensorBoardLogger(
-        save_dir='./finetune_logs' if output_path is None else output_path,
+        save_dir='./logs' if output_path is None else output_path,
         log_graph=True,
-        name='{}_hidden_{}_embed_{}_batch_{}_epochs_{}_seed_{}'.format(
-            model_name, hidden_dim, embed_dim, batch_size, epochs, seed
+        name='{}_dim_{}_batch_{}_epochs_{}_seed_{}'.format(
+            model_name, hidden_dim, batch_size, epochs, seed
         ),
     )
 
@@ -128,7 +112,7 @@ def main(
         save_top_k=5,
         monitor='val_loss',
         mode='min',
-        filename='{epoch:02d}-{val_loss:.2f}',
+        filename='{epoch:02d}-{val_loss:.2f}-{val_acc:.4f}',
     )
 
     trainer = Trainer(
@@ -139,6 +123,7 @@ def main(
         enable_checkpointing=True,
         logger=logger,
         callbacks=[checkpoint_callback],
+        gradient_clip_val=1.0,
     )
     model.train()
     trainer.fit(model, train_loader, validate_loader)

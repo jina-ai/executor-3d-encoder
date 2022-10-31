@@ -1,6 +1,7 @@
 import torch
 from torch import nn
 
+from .curvenet import CurveNet
 from .pointconv import MLP, PointConv
 from .pointmlp import pointMLP, pointMLPElite
 from .pointnet import PointNet
@@ -17,6 +18,60 @@ PRETRAINED_MODELS = {
         'hidden_dim': 1024,
     },
 }
+
+
+def get_model(model_name: str, hidden_dim: int, input_shape: str, classifier: bool):
+    if model_name == 'pointnet':
+        # classifier ignored
+        return PointNet(
+            emb_dims=hidden_dim,
+            input_shape=input_shape,
+            use_bn=True,
+            global_feat=True,
+            classifier=classifier,
+        )
+    elif model_name == 'pointconv':
+        return PointConv(
+            emb_dims=hidden_dim,
+            input_channel_dim=3,
+            input_shape=input_shape,
+            classifier=classifier,
+        )
+    elif model_name == 'pointnet2':
+        return PointNet2(
+            emb_dims=hidden_dim,
+            normal_channel=False,
+            input_shape=input_shape,
+            classifier=classifier,
+            density_adaptive_type='ssg',
+        )
+    elif model_name == 'pointnet2msg':
+        return PointNet2(
+            emb_dims=hidden_dim,
+            normal_channel=False,
+            input_shape=input_shape,
+            classifier=classifier,
+            density_adaptive_type='msg',
+        )
+    elif model_name == 'repsurf':
+        return RepSurf(
+            num_points=1024,
+            emb_dims=hidden_dim,
+            input_shape=input_shape,
+            classifier=classifier,
+        )
+    elif model_name == 'pointmlp':
+        return pointMLP(classifier=classifier, embed_dim=hidden_dim)
+    elif model_name == 'pointmlp-elite':
+        return pointMLPElite(classifier=classifier, embed_dim=hidden_dim)
+    elif model_name == 'curvenet':
+        return CurveNet(
+            emb_dims=hidden_dim,
+            input_shape=input_shape,
+            classifier=classifier,
+        )
+    else:
+        raise NotImplementedError('The model has not been implemented yet!')
 
 
 class MeshDataModel(nn.Module):
@@ -37,49 +92,7 @@ class MeshDataModel(nn.Module):
             model_path = config['model_path']
             hidden_dim = config['hidden_dim']
 
-        if model_name == 'pointnet':
-            self._point_encoder = PointNet(
-                emb_dims=hidden_dim,
-                input_shape=input_shape,
-                use_bn=True,
-                global_feat=True,
-            )
-        elif model_name == 'pointconv':
-            self._point_encoder = PointConv(
-                emb_dims=hidden_dim,
-                input_channel_dim=3,
-                input_shape=input_shape,
-                classifier=False,
-            )
-        elif model_name == 'pointnet2':
-            self._point_encoder = PointNet2(
-                emb_dims=hidden_dim,
-                normal_channel=False,
-                input_shape=input_shape,
-                classifier=False,
-                density_adaptive_type='ssg',
-            )
-        elif model_name == 'pointnet2msg':
-            self._point_encoder = PointNet2(
-                emb_dims=hidden_dim,
-                normal_channel=False,
-                input_shape=input_shape,
-                classifier=False,
-                density_adaptive_type='msg',
-            )
-        elif model_name == 'repsurf':
-            self._point_encoder = RepSurf(
-                num_points=1024,
-                emb_dims=hidden_dim,
-                input_shape=input_shape,
-                classifier=False,
-            )
-        elif model_name == 'pointmlp':
-            self._point_encoder = pointMLP(classifier=False, embed_dim=hidden_dim)
-        elif model_name == 'pointmlp-elite':
-            self._point_encoder = pointMLPElite(classifier=False, embed_dim=hidden_dim)
-        else:
-            raise NotImplementedError('The model has not been implemented yet!')
+        self._point_encoder = get_model(model_name, hidden_dim, input_shape, False)
 
         if model_path:
             if model_path.startswith('http'):

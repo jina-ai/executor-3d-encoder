@@ -377,7 +377,7 @@ class Model(nn.Module):
         return x
 
 
-def pointMLP(num_classes=40, embed_dim=512, classifier=False, **kwargs) -> Model:
+def pointMLP(num_classes=40, embed_dim=64, classifier=False, **kwargs) -> Model:
     return Model(
         points=1024,
         class_num=num_classes,
@@ -398,7 +398,7 @@ def pointMLP(num_classes=40, embed_dim=512, classifier=False, **kwargs) -> Model
     )
 
 
-def pointMLPElite(num_classes=40, embed_dim=256, classifier=False, **kwargs) -> Model:
+def pointMLPElite(num_classes=40, embed_dim=32, classifier=False, **kwargs) -> Model:
     return Model(
         points=1024,
         class_num=num_classes,
