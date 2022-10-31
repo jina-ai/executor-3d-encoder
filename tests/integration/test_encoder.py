@@ -10,7 +10,7 @@ from executor import MeshDataEncoder, MeshDataEncoderPL
 
 @pytest.mark.parametrize(
     'model_name',
-    ['pointconv', 'pointnet', 'pointnet2', 'pointmlp', 'curvenet', 'repsurf'],
+    ['pointconv', 'pointnet', 'pointnet2', 'curvenet', 'repsurf'],
 )
 def test_integration(model_name: str):
     docs = DocumentArray.empty(5)
@@ -35,7 +35,6 @@ def test_integration(model_name: str):
     [
         ('pointnet', 512, 512),
         ('pointnet2', 512, 512),
-        ('pointmlp', 64, 32),
         ('curvenet', 512, 512),
         ('repsurf', 512, 512),
     ],
