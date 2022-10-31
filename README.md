@@ -109,6 +109,31 @@ $ python finetune_pl.py --model_name pointconv \
     --epochs 50
 ```
 
+## Benchmark
+
+Below is our pretrained models' performance of 3D point cloud classification on ModelNet40 official test dataset.
+
+| dataset    | model name | batch size | embedding dims | test loss | test overall accuracy |
+|------------|------------|------------|----------------|-----------|-----------------------|
+| modelnet40 | PointNet   | 32         | 256            |      0.63 |                0.8225 |
+| modelnet40 | PointNet   | 32         | 512            |      0.63 |                0.8254 |
+| modelnet40 | PointNet   | 32         | 1024           |      0.65 |                0.8148 |
+| modelnet40 | PointNet++ | 32         | 256            |      0.48 |                 0.863 |
+| modelnet40 | PointNet++ | 32         | 512            |      0.44 |                0.8712 |
+| modelnet40 | PointNet++ | 32         | 1024           |      0.47 |                0.8655 |
+| modelnet40 | PointConv  | 32         | 128            |      0.55 |                0.8452 |
+| modelnet40 | PointConv  | 32         | 256            |      0.53 |                0.8517 |
+| modelnet40 | PointConv  | 32         | 512            |      0.54 |                0.8505 |
+| modelnet40 | PointConv  | 32         | 1024           |      0.58 |                0.8533 |
+| modelnet40 | PointMLP   | 32         | 64             |      0.46 |                0.8728 |
+| modelnet40 | RepSurf    | 32         | 256            |      0.44 |                0.8776 |
+| modelnet40 | RepSurf    | 32         | 512            |      0.45 |                0.8655 |
+| modelnet40 | RepSurf    | 32         | 1024           |      0.43 |                0.8724 |
+| modelnet40 | CurveNet   | 32         | 128            |      0.45 |                0.8651 |
+| modelnet40 | CurveNet   | 32         | 256            |      0.45 |                0.8647 |
+| modelnet40 | CurveNet   | 32         | 512            |      0.47 |                0.8687 |
+| modelnet40 | CurveNet   | 32         | 1024           |      0.48 |                 0.857 |
+
 ## References
 
 - [PointNet](https://arxiv.org/abs/1612.00593):  Deep Learning on Point Sets for 3D Classification and Segmentation
