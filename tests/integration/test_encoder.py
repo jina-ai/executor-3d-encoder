@@ -16,6 +16,7 @@ from tests.conftest import create_torch_dataset
         ('pointnet2', 1024, 1024),
         ('pointmlp', 64, 32),
         ('repsurf', 1024, 1024),
+        ('curvenet', 1024, 1024),
     ],
 )
 def test_integration(model_name: str, hidden_dim: int, embed_dim: int):
@@ -50,6 +51,7 @@ def test_integration(model_name: str, hidden_dim: int, embed_dim: int):
         ('pointnet2', 1024, 1024),
         ('pointmlp', 64, 32),
         ('repsurf', 1024, 1024),
+        ('curvenet', 1024, 1024),
     ],
 )
 def test_integration_pytorch_lightning(
@@ -59,8 +61,8 @@ def test_integration_pytorch_lightning(
         default_model_name=model_name, hidden_dim=hidden_dim, embed_dim=embed_dim
     )
 
-    train_and_val_data = create_torch_dataset(10, 1024)
-    test_data = create_torch_dataset(4, 1024)
+    train_and_val_data = create_torch_dataset(200, 1024)
+    test_data = create_torch_dataset(100, 1024)
 
     train_data, validate_data = random_split(train_and_val_data, [4, 1])
 
@@ -89,4 +91,3 @@ def test_integration_pytorch_lightning(
         5,
         embed_dim,
     )
-

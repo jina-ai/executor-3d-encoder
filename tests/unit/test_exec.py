@@ -13,6 +13,7 @@ from executor import MeshDataEncoder
         ('pointnet2', 1024, 1024),
         ('pointmlp', 64, 32),
         ('repsurf', 1024, 1024),
+        ('curvenet', 1024, 1024),
     ],
 )
 def test_encoder(model_name, hidden_dim, embed_dim):
